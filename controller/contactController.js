@@ -31,6 +31,7 @@ exports.getAllMessages = async (req, res) => {
     const messages = await Contact.find().populate('user', 'fullName email');
     res.status(200).json({ success: true, messages });
   } catch (err) {
+    console.error('Error fetching messages:', err);
     res.status(500).json({ success: false, message: 'Error fetching messages' });
   }
 };

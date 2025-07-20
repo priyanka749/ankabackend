@@ -54,6 +54,41 @@ const handleMessage = async (req, res) => {
         case 'exchange_policy':
           reply = 'Yes, you can exchange within 5 days with the original tag attached.';
           break;
+                case 'browse_products':
+        reply = 'Sure! Here are some of our newest and most popular ethnic styles 🔥';
+        break;
+
+      case 'track_order':
+        reply = 'Please share your order ID to help me track your package 📦.';
+        break;
+
+      case 'return_policy':
+        reply = "We offer easy 7-day returns on most items. Just go to 'My Orders' and request a return 📦✅.";
+        break;
+
+      case 'payment_options':
+        reply = 'Yes! You can pay via Khalti, eSewa, credit/debit cards, or choose Cash on Delivery 💵.';
+        break;
+
+      case 'customer_support':
+        reply = 'No problem! Connecting you to our support team 👩‍💻... Please wait a moment.';
+        break;
+
+      case 'size_guide':
+        reply = "Here's our size guide 📏. Let me know your measurements and I can assist you better.";
+        break;
+
+      case 'add_to_cart':
+        reply = 'Item added to your cart 🛒! You can checkout anytime from the top-right cart icon.';
+        break;
+
+      case 'confirm_order':
+        reply = 'Awesome! Redirecting you to the secure checkout page 🧾💳.';
+        break;
+
+      case 'delivery_time':
+        reply = 'Delivery usually takes 3–5 days inside the valley and 5–7 days outside. 🚚📦';
+        break;
 
         case 'track_order':
           reply = 'You can track your order using the tracking ID sent via SMS or email.';

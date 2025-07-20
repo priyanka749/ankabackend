@@ -61,6 +61,7 @@ app.use('/api/sales', saleRoutes); // ✅ Sale routes
 // app.use('/api/tryon', tryonRoute); // ✅ Tryon routes
 // ✅ Sale routes
 app.use('/api/reviews', reviewRoute); // ✅ Review routes
+app.use('/api/notifications', require('./routes/notificationRoutes'));
 
 const PORT = 3000;
 app.listen(PORT, () => console.log(`🚀 Server running at http://localhost:${PORT}`));

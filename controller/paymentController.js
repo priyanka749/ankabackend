@@ -64,7 +64,7 @@ product_details: products.map(p => ({
   }
 };
 
-// ✅ Verify Payment + Reduce Stock
+// ✅ Verify Payment + Reduce Stock + Create Notification
 exports.verifyKhaltiPayment = async (req, res) => {
   try {
     console.log('verifyKhaltiPayment req.body:', req.body);
@@ -74,6 +74,7 @@ exports.verifyKhaltiPayment = async (req, res) => {
     if (!pidx || !userId || !products || !amount) {
       return res.status(400).json({ success: false, message: 'Missing required fields' });
     }
+    
     const verificationRes = await axios.post(
       'https://dev.khalti.com/api/v2/epayment/lookup/',
       { pidx },
@@ -102,15 +103,27 @@ exports.verifyKhaltiPayment = async (req, res) => {
       });
 
       await newOrder.save();
-const result = await Cart.updateOne(
-  { user: new mongoose.Types.ObjectId(userId) },
-  { $set: { items: [] } }
-);
-console.log('Cart clear result:', result);
+      
+      // Clear cart
+      const result = await Cart.updateOne(
+        { user: new mongoose.Types.ObjectId(userId) },
+        { $set: { items: [] } }
+      );
+      console.log('Cart clear result:', result);
+      
       // 🔽 Reduce Stock for Each Product
       for (const item of products) {
         await reduceStock(item.productId, item.size, item.quantity);
       }
+
+      // 🔔 Create notification for successful order
+      const { createNotification } = require('./notificationController');
+      await createNotification(
+        userId,
+        'Order Placed Successfully! 🎉',
+        `Your order #${newOrder._id.toString().slice(-6)} has been confirmed and is being processed. Total: Rs. ${total_amount / 100}`,
+        'order'
+      );
 
       return res.status(200).json({
         success: true,
@@ -177,20 +190,20 @@ exports.deleteOrder = async (req, res) => {
     for (const item of order.products) {
       const product = await Product.findById(item.productId);
       if (product) {
-        const sizeIndex = product.sizes.findIndex(s => s.size === item.size);
-        if (sizeIndex !== -1) {
-          product.sizes[sizeIndex].stock += item.quantity;
+        const size = product.sizes.find(s => s.size === item.size);
+        if (size) {
+          size.stock += item.quantity;
           product.totalStock = product.sizes.reduce((acc, cur) => acc + cur.stock, 0);
           await product.save();
         }
       }
     }
 
-    await order.deleteOne();
+    await orderSchema.findByIdAndDelete(orderId);
 
-    res.status(200).json({ success: true, message: 'Order deleted successfully' });
+    return res.status(200).json({ success: true, message: 'Order deleted successfully' });
   } catch (err) {
     console.error(err.message);
-    res.status(500).json({ success: false, message: 'Failed to delete order' });
+    res.status(500).json({ message: 'Failed to delete order' });
   }
 };
